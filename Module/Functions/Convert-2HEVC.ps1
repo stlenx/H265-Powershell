@@ -5,6 +5,7 @@ function Convert-2HEVC {
     )
 
     Begin {
+		$UnformatDir = $dir
         # Check to make sure $dir is sane.
 
         # Kill them fucking dirty ass motherfuckin stupid ass piece of shit square-bracket-in-path fuckery
@@ -20,26 +21,29 @@ function Convert-2HEVC {
         }
 
         
-        if(!(test-path [string]$dir)){
+        if(!(test-path $dir)){
             Write-Host -ForegroundColor Red -BackgroundColor Black "Path $dir is not valid. Please input a valid path and try again."
-            exit 69
+            break #69
         }
+		
+		cd $dir
     }
 
     Process{
         $formats = (
-        'mp4',
-        'mkv'
+			'mp4',
+			'mkv'
         )
 
-        if(!(test-path "$dir\Converted")) {
-            new-item "$dir\Converted" -itemtype directory
+        if(!(test-path $UnformatDir\Converted)) {
+            new-item $dir\Converted -itemtype directory
         }
 
-        foreach ($path in (Get-ChildItem $dir)) {
+        foreach ($path in (Get-ChildItem)) {
             if($formats -contains ($path.name.split('.')[-1])) {
+				write-host $dir
                 $Name = $path.name
-                ffmpeg -hwaccel cuda -hwaccel_output_format cuda -i $path.fullname -c:v hevc_nvenc -preset slow "$dir\Converted\$Name"
+                ffmpeg -hwaccel cuda -hwaccel_output_format cuda -i $UnformatDir\$Name -c:v hevc_nvenc -preset slow "$UnformatDir\Converted\$Name"
             }
         }
     }

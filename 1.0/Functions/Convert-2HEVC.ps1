@@ -1,10 +1,26 @@
 function Convert-2HEVC {
     param (
         [alias('d')]
-        $dir
+        $dir,
+        [alias('p')]
+        $preset
     )
 
     Begin {
+
+        $listOfOptions = (
+            "fast",
+            "medium",
+            "slow"
+        )
+
+        while(!($listOfOptions -contains $preset)) {
+            if($preset) {
+                write-Host -BackgroundColor Black -ForegroundColor Red "Preset of: '$preset' is not valid. Please select a valid preset."
+            }
+            $preset = (read-host "Please input a valid option (fast, medium or slow)")
+        }
+        
 		$UnformatDir = $dir
         # Check to make sure $dir is sane.
         # Kill those fucking dirty ass motherfuckin stupid ass piece of shit square-bracket-in-path bastards

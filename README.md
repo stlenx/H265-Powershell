@@ -16,3 +16,9 @@ Open powershell and type `Convert-2HEVC` followed by the path to the folder cont
 (ex `Convert-2HEVC "P:\unsorted\Initial_D"`)
 
 The module will make a folder called "Converted" in the specified path and place the transcoded videos in there. The file names will not be changed. Transcoding will take use of the gpu for faster operation using nvidia nvenc, therefore a Nvidia gpu will be necesary :(
+
+## Example
+
+Converted a .mkv file that was 1.09GB to just 439MB:
+
+![exampleConversion](https://github.com/stlenx/Images/blob/main/ScriptDoesThePog_LI.jpg)

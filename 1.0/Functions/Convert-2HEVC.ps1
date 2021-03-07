@@ -52,9 +52,11 @@ function Convert-2HEVC {
 
         foreach ($File in (Get-ChildItem)) {
             if($formats -contains ($File.name.split('.')[-1])) {
-				write-host $dir
-                $Name = $File.name
-                ffmpeg -hwaccel cuda -hwaccel_output_format cuda -i "$UnformatDir\$Name" -c:v hevc_nvenc -preset slow "$UnformatDir\Converted\$Name"
+		$Name = $File.name
+                $preset = 'fast'
+                $input = "$UnformatDir\$Name"
+                $output = "$UnformatDir\Converted\$Name"
+                ffmpeg -hwaccel cuda -hwaccel_output_format cuda -i $input -map 0 -c copy -c:v hevc_nvenc -preset $preset $output
             }
         }
     }

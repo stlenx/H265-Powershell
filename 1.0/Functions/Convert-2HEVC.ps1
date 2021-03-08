@@ -22,14 +22,19 @@ function Convert-2HEVC {
 			'mkv'
 		)
 		
-		$hwaccel = (
-			'',
-			'libx265'
-		)
-		
 		if($GPU) {
-			$hwaccel[0] = '-hwaccel cuda -hwaccel_output_format cuda'
-			$hwaccel[1] = 'hevc_nvenc'
+			$hwaccel = (
+				'hevc_nvenc',
+				'-hwaccel',
+				'cuda',
+				'-hwaccel_output_format',
+				'cuda'
+			)
+		} else {
+			$hwaccel = (
+				'libx265',
+				''
+			)
 		}
 
 		# Clearing the terminal becuase this makes shit tidy.
@@ -69,7 +74,7 @@ function Convert-2HEVC {
 				$Name = $File.name
 				$input = "$UnformatDir\$Name"
 				$output = "$UnformatDir\Converted\$Name"
-				ffmpeg $hwaccel[0] -i $input -map 0 -c copy -c:v $hwaccel[1] -Preset $Preset $output
+				ffmpeg $hwaccel[1] $hwaccel[2] $hwaccel[3] $hwaccel[4] -i $input -map 0 -c copy -c:v $hwaccel[0] -preset $Preset $output
 			}
 		}
 	}

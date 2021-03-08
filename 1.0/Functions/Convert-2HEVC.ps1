@@ -4,7 +4,8 @@ function Convert-2HEVC {
 		$Dir,
 		[alias('p')]
 		$Preset,
-		[switch]$GPU
+		[switch]$GPU,
+		[switch]$Audio
 	)
 
 	Begin {
@@ -30,9 +31,33 @@ function Convert-2HEVC {
 				'-hwaccel_output_format',
 				'cuda'
 			)
+
+			#$CpuOrGpu = 'hevc_nvenc'
+			#$HwAccel = @{ hwaccel = 'cuda'; hwaccel_output_format = 'cuda' }
 		} else {
 			$hwaccel = (
 				'libx265',
+				'',
+				'',
+				'',
+				''
+			)
+
+			#$CpuOrGpu = 'libx265'
+		}
+
+		if($Audio) {
+			$ConvertAudio = (
+				'-c:a',
+				'aac',
+				'-b:a',
+				'128k'
+			)
+		} else {
+			$ConvertAudio = (
+				'',
+				'',
+				'',
 				''
 			)
 		}
@@ -74,7 +99,7 @@ function Convert-2HEVC {
 				$Name = $File.name
 				$input = "$UnformatDir\$Name"
 				$output = "$UnformatDir\Converted\$Name"
-				ffmpeg $hwaccel[1] $hwaccel[2] $hwaccel[3] $hwaccel[4] -i $input -map 0 -c copy -c:v $hwaccel[0] -preset $Preset $output
+				ffmpeg $hwaccel[1] $hwaccel[2] $hwaccel[3] $hwaccel[4] -i $input -map 0 -c copy $ConvertAudio[0] $ConvertAudio[1] $ConvertAudio[2] $ConvertAudio[3] -c:v $hwaccel[0] -preset $Preset $output
 			}
 		}
 	}

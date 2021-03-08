@@ -12,6 +12,8 @@ Powershell module that uses ffmpeg to automatically convert video files to H265/
 
 3. Download ffpeg from `https://ffmpeg.org/` and add it to your Path (https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10/ <- Guide).
 
+---
+
 ## Usage
 
 Open powershell and type `Convert-2HEVC` followed by the path to the folder containing the videos you wish to convert in double quotes. 
@@ -23,7 +25,17 @@ Open powershell and type `Convert-2HEVC` followed by the path to the folder cont
 
  -Slow gives the best video quality at the cost of transconding speed.
 
-The module will make a folder called "Converted" in the specified path and place the transcoded videos in there. The file names will not be changed. Transcoding will take use of the gpu for faster operation using nvidia nvenc, therefore a Nvidia gpu will be necesary :( (More info on which GPUs are supported here -> https://developer.nvidia.com/video-encode-and-decode-gpu-support-matrix-new)
+ ---
+
+### Optional flairs:
+
+-GPU: By adding `-GPU` after the path you'll enable hardware acceleration using gpu (It'll use CPU by default). Transcoding will take use of the gpu for faster operation using nvidia nvenc, therefore a Nvidia gpu will be necesary :( (More info on which GPUs are supported here -> https://developer.nvidia.com/video-encode-and-decode-gpu-support-matrix-new)
+
+-audio: Some files come with very large audio streams that we might want to compress. Using the `-audio` flair will also compress the audio.
+
+The module will make a folder called "Converted" in the specified path and place the transcoded videos in there. The file names will not be changed. 
+
+---
 
 ## Example
 

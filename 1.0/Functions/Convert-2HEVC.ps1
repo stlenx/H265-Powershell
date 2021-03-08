@@ -29,6 +29,7 @@ function Convert-2HEVC {
 		
 		if($GPU) {
 			$hwaccel[0] = '-hwaccel cuda -hwaccel_output_format cuda'
+			$hwaccel[1] = 'hevc_nvenc'
 		}
 
 		# Clearing the terminal becuase this makes shit tidy.

@@ -44,8 +44,8 @@ function Convert-2HEVC {
 			break #69
 		}
 		
-		# Chage to the Dir because running get-childitem is fucked.
-		cd $Dir
+		# Set the working directory to be the input. This is because Get-ChildItem is pretty fucked because of the aforementioned shitty square brackets.
+		Set-Location $Dir
 	}
 
 	Process{

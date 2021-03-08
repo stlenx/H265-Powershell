@@ -1,78 +1,64 @@
 function Convert-2HEVC {
     param (
         [alias('d')]
-        $dir,
+        $Dir,
         [alias('p')]
-        $preset
+        $Preset
     )
 
     Begin {
 
-        $listOfOptions = (
+        # Config lists
+
+        $ValidPresets = (
             "fast",
             "medium",
             "slow"
         )
 
-        while(!($listOfOptions -contains $preset)) {
-            if($preset) {
-                write-Host -BackgroundColor Black -ForegroundColor Red "Preset of: '$preset' is not valid. Please select a valid preset."
-            }
-            $preset = (read-host "Please input a valid option (fast, medium or slow)")
-        }
-        
-		$UnformatDir = $dir
-        # Check to make sure $dir is sane.
-        # Kill those fucking dirty ass motherfuckin stupid ass piece of shit square-bracket-in-path bastards
-
-        if($dir -Match "\["){
-            # Found a fuckin square bracket. Fuck these guys. Get yeeted to fuck.
-            $dir = $dir.Replace('[', '``[')
-        }
-
-        # Have I mentioned how much I hate these pieces of shit?
-        # Because I really. fucking. hate. these.
-
-        if($dir -Match "\]"){
-            # Found a fuckin square bracket. Fuck these guys. Get yeeted to fuck.
-            $dir = $dir.Replace(']', '``]')
-        }
-
-        # Fuck you weeb folder maker cunts. Putting fuckin brackets into your folder names so I have to spend
-        # Ages figuring why this shit is broken and troubleshooting just to make this fuckin code work.
-        # Reeeeeeeeeeeeeeeeeeeeeeeee
-        
-        if(!(test-path $dir)){
-            Write-Host -ForegroundColor Red -BackgroundColor Black "Path $dir is not valid. Please input a valid path and try again."
-            break #69
-        }
-		
-        # Chage to the dir because running get-childitem is fucked.
-		cd $dir
-    }
-
-    Process{
-        # haha. look at these stupid ass motherfuckin formats.
         $formats = (
 			'mp4',
 			'mkv'
         )
 
-        # Does the stupid fuckin path exist?
-        # Does it Jerry?
-        # Does it?
+        # Clearing the terminal becuase this makes shit tidy.
+        Clear-Host
+
+        while(!($ValidPresets -contains $Preset)) {
+            if($Preset) {
+                write-Host -BackgroundColor Black -ForegroundColor Red "Preset of: '$Preset' is not valid. Please select a valid Preset."
+            }
+            $Preset = (read-host "Please input a valid option (fast, medium or slow)")
+        }
+        
+		$UnformatDir = $Dir
+
+        # Okay I'm less angry about this now. But still fuck you for adding [] to dir names.
+        if($Dir -Match "\[|\]"){
+            $Dir = $Dir.Replace('[', '``[')
+            $Dir = $Dir.Replace(']', '``]')
+        }
+        
+        if(!(test-path $Dir)){
+            Write-Host -ForegroundColor Red -BackgroundColor Black "Path $Dir is not valid. Please input a valid path and try again."
+            break #69
+        }
+		
+        # Chage to the Dir because running get-childitem is fucked.
+		cd $Dir
+    }
+
+    Process{
         if(!(test-path $UnformatDir\Converted)) {
-            # Does it fuck.
-            new-item $UnformatDir\Converted -itemtype directory
+            new-item $UnformatDir\Converted -itemtype Directory
         }
 
         foreach ($File in (Get-ChildItem)) {
             if($formats -contains ($File.name.split('.')[-1])) {
-		$Name = $File.name
-                $preset = 'fast'
+		        $Name = $File.name
                 $input = "$UnformatDir\$Name"
                 $output = "$UnformatDir\Converted\$Name"
-                ffmpeg -hwaccel cuda -hwaccel_output_format cuda -i $input -map 0 -c copy -c:v hevc_nvenc -preset $preset $output
+                ffmpeg -hwaccel cuda -hwaccel_output_format cuda -i $input -map 0 -c copy -c:v hevc_nvenc -Preset $Preset $output
             }
         }
     }

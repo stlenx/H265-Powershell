@@ -21,7 +21,7 @@ Open powershell and type `Convert-2HEVC` followed by the path to the folder cont
 
  -Slow gives the best video quality at the cost of transconding speed.
 
-The module will make a folder called "Converted" in the specified path and place the transcoded videos in there. The file names will not be changed. Transcoding will take use of the gpu for faster operation using nvidia nvenc, therefore a Nvidia gpu will be necesary :(
+The module will make a folder called "Converted" in the specified path and place the transcoded videos in there. The file names will not be changed. Transcoding will take use of the gpu for faster operation using nvidia nvenc, therefore a Nvidia gpu will be necesary :( (More info on which GPUs are supported here -> https://developer.nvidia.com/video-encode-and-decode-gpu-support-matrix-new)
 
 ## Example
 

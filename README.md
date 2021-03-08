@@ -1,5 +1,7 @@
 # H265-Powershell
 
+[![forthebadge](https://forthebadge.com/images/badges/works-on-my-machine.svg)](https://forthebadge.com)
+
 Powershell module that uses ffmpeg to automatically convert video files to H265/HEVC
 
 ## Installation

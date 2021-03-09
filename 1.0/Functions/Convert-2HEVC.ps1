@@ -12,6 +12,22 @@ function Convert-2HEVC {
 	Begin {
 
 		# Config lists
+		$SupportedFormats = (
+			".webm",
+			".mkv",
+			".flv",
+			".ogg",
+			".avi",
+			".TS",
+			".mov",
+			".wmv",
+			".mp4",
+			".m4p",
+			".m4v",
+			".mpg",
+			".mpeg",
+			".3gp"
+		)
 
 		$ValidPresets = (
 			"fast",
@@ -58,6 +74,11 @@ function Convert-2HEVC {
 
 		foreach ($File in (Get-ChildItem)) {
 			$Name = $File.name
+
+			if(!($SupportedFormats -Contains $File.Extension)){
+				continue
+			}
+
 			$InputFile = "$UnformatDir\$Name"
 
 			if(!($formats -Contains $File.Extension)){

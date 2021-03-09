@@ -57,48 +57,49 @@ function Convert-2HEVC {
 		}
 
 		foreach ($File in (Get-ChildItem)) {
-			if($formats -contains ($File.name.split('.')[-1])) {
-				$Name = $File.name
-				$InputFile = "$UnformatDir\$Name"
+			$Name = $File.name
+			$InputFile = "$UnformatDir\$Name"
 
-				if(!($formats -Contains $File.Extension)){
-					$Name = [string]$Name -Replace $File.Extension, ".mp4"
-				}
-
-				$OutputFile = "$UnformatDir\Converted\$Name"
-
-				# Build Options
-				# If GPU prepend with hwaccel info
-				# If Audio, prepend output with Audio info
-				if($UseGPU) {
-					$CPUorGPU = (
-						"-hwaccel", "cuda",
-						"-hwaccel_output_format", "cuda",
-						"-i", "$InputFile",
-						"-c:v", "hevc_nvenc"
-					)
-				} else {
-					$CPUorGPU = (
-						"-i", "$InputFile",
-						"-c:v", "libx265"
-					)
-				}
-
-				if($Audio) {
-					$Options = $CPUorGPU + (
-						"-c:a", "aac",
-						"-b:a", "128k",
-						"-preset", $Preset.ToLower(),
-						$OutputFile
-					)
-				} else {
-					$Options = $CPUorGPU + (
-						"-preset", $Preset.ToLower(),
-						$OutputFile
-					)
-				}
-				ffmpeg $Options
+			if(!($formats -Contains $File.Extension)){
+				$Name = [string]$Name -Replace $File.Extension, ".mp4"
 			}
+
+			$OutputFile = "$UnformatDir\Converted\$Name"
+
+			Write-Host $OutputFile
+
+			# Build Options
+			# If GPU prepend with hwaccel info
+			# If Audio, prepend output with Audio info
+			if($UseGPU) {
+				$CPUorGPU = (
+					"-hwaccel", "cuda",
+					"-hwaccel_output_format", "cuda",
+					"-i", "$InputFile",
+					"-c:v", "hevc_nvenc"
+				)
+			} else {
+				$CPUorGPU = (
+					"-i", "$InputFile",
+					"-c:v", "libx265"
+				)
+			}
+
+			if($Audio) {
+				$Options = $CPUorGPU + (
+					"-c:a", "aac",
+					"-b:a", "128k",
+					"-preset", $Preset.ToLower(),
+					$OutputFile
+				)
+			} else {
+				$Options = $CPUorGPU + (
+					"-preset", $Preset.ToLower(),
+					$OutputFile
+				)
+			}
+			ffmpeg $Options
+			
 		}
 	}
 }

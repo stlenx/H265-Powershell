@@ -22,7 +22,7 @@ function Convert-2HEVC {
 		$formats = (
 			'.mp4',
 			'.mkv'
-		).
+		)
 		
 		# Clearing the terminal becuase this makes shit tidy.
 		Clear-Host

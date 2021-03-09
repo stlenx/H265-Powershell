@@ -20,9 +20,9 @@ function Convert-2HEVC {
 		)
 
 		$formats = (
-			'mp4',
-			'mkv'
-		)
+			'.mp4',
+			'.mkv'
+		).
 		
 		# Clearing the terminal becuase this makes shit tidy.
 		Clear-Host
@@ -60,6 +60,11 @@ function Convert-2HEVC {
 			if($formats -contains ($File.name.split('.')[-1])) {
 				$Name = $File.name
 				$InputFile = "$UnformatDir\$Name"
+
+				if(!($formats -Contains $File.Extension)){
+					$Name = [string]$Name -Replace $File.Extension, ".mp4"
+				}
+
 				$OutputFile = "$UnformatDir\Converted\$Name"
 
 				# Build Options

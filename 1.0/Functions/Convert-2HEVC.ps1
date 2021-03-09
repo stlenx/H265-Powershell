@@ -1,10 +1,11 @@
 function Convert-2HEVC {
 	param (
+		[Parameter(Mandatory=$true)]		
 		[alias('d')]
 		$Dir,
 		[alias('p')]
 		$Preset,
-		[switch]$GPU,
+		[switch]$UseGPU,
 		[switch]$Audio
 	)
 
@@ -23,45 +24,6 @@ function Convert-2HEVC {
 			'mkv'
 		)
 		
-		if($GPU) {
-			$hwaccel = (
-				'hevc_nvenc',
-				'-hwaccel',
-				'cuda',
-				'-hwaccel_output_format',
-				'cuda'
-			)
-
-			#$CpuOrGpu = 'hevc_nvenc'
-			#$HwAccel = @{ hwaccel = 'cuda'; hwaccel_output_format = 'cuda' }
-		} else {
-			$hwaccel = (
-				'libx265',
-				'',
-				'',
-				'',
-				''
-			)
-
-			#$CpuOrGpu = 'libx265'
-		}
-
-		if($Audio) {
-			$ConvertAudio = (
-				'-c:a',
-				'aac',
-				'-b:a',
-				'128k'
-			)
-		} else {
-			$ConvertAudio = (
-				'',
-				'',
-				'',
-				''
-			)
-		}
-
 		# Clearing the terminal becuase this makes shit tidy.
 		Clear-Host
 
@@ -97,9 +59,40 @@ function Convert-2HEVC {
 		foreach ($File in (Get-ChildItem)) {
 			if($formats -contains ($File.name.split('.')[-1])) {
 				$Name = $File.name
-				$input = "$UnformatDir\$Name"
-				$output = "$UnformatDir\Converted\$Name"
-				ffmpeg $hwaccel[1] $hwaccel[2] $hwaccel[3] $hwaccel[4] -i $input -map 0 -c copy $ConvertAudio[0] $ConvertAudio[1] $ConvertAudio[2] $ConvertAudio[3] -c:v $hwaccel[0] -preset $Preset $output
+				$InputFile = "$UnformatDir\$Name"
+				$OutputFile = "$UnformatDir\Converted\$Name"
+
+				# Build Options
+				# If GPU prepend with hwaccel info
+				# If Audio, prepend output with Audio info
+				if($UseGPU) {
+					$CPUorGPU = (
+						"-hwaccel", "cuda",
+						"-hwaccel_output_format", "cuda",
+						"-i", "$InputFile",
+						"-c:v", "hevc_nvenc"
+					)
+				} else {
+					$CPUorGPU = (
+						"-i", "$InputFile",
+						"-c:v", "libx265"
+					)
+				}
+
+				if($Audio) {
+					$Options = $CPUorGPU + (
+						"-c:a", "aac",
+						"-b:a", "128k",
+						"-preset", $Preset.ToLower(),
+						$OutputFile
+					)
+				} else {
+					$Options = $CPUorGPU + (
+						"-preset", $Preset.ToLower(),
+						$OutputFile
+					)
+				}
+				ffmpeg $Options
 			}
 		}
 	}

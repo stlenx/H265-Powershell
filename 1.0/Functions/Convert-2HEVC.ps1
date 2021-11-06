@@ -109,7 +109,7 @@ function Convert-2HEVC {
 			if($Audio) {
 				$Options = $CPUorGPU + (
 					"-c:a", "aac",
-					"-b:a", "128k",
+					"-b:a", "320k",
 					"-preset", $Preset.ToLower(),
 					$OutputFile
 				)

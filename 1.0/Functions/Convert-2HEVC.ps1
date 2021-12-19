@@ -3,8 +3,6 @@ function Convert-2HEVC {
 		[Parameter(Mandatory=$true)]		
 		[alias('d')]
 		$Dir,
-		[alias('p')]
-		$Preset,
 		[switch]$UseGPU,
 		[switch]$Audio
 	)
@@ -29,12 +27,6 @@ function Convert-2HEVC {
 			".3gp"
 		)
 
-		$ValidPresets = (
-			"fast",
-			"medium",
-			"slow"
-		)
-
 		$formats = (
 			'.mp4',
 			'.mkv'
@@ -42,13 +34,6 @@ function Convert-2HEVC {
 		
 		# Clearing the terminal becuase this makes shit tidy.
 		Clear-Host
-
-		while(!($ValidPresets -contains $Preset)) {
-			if($Preset) {
-				write-Host -BackgroundColor Black -ForegroundColor Red "Preset of: '$Preset' is not valid. Please select a valid Preset."
-			}
-			$Preset = (read-host "Please input a valid option (fast, medium or slow)")
-		}
 		
 		$UnformatDir = $Dir
 
@@ -72,7 +57,13 @@ function Convert-2HEVC {
 			new-item $UnformatDir\Converted -itemtype Directory
 		}
 
+		$Total = (Get-ChildItem).Count
+		$i = 0
+
 		foreach ($File in (Get-ChildItem)) {
+			$Percent = ($i * 100) / $Total
+			# Write-Progress -Activity "Converting" -Status "$Percent% Complete:" -PercentComplete $Percent
+
 			$Name = $File.name
 
 			if(!($SupportedFormats -Contains $File.Extension)){
@@ -87,40 +78,47 @@ function Convert-2HEVC {
 
 			$OutputFile = "$UnformatDir\Converted\$Name"
 
-			Write-Host $OutputFile
-
 			# Build Options
 			# If GPU prepend with hwaccel info
 			# If Audio, prepend output with Audio info
+			$Options = (
+				"-hide_banner",
+				"-loglevel", "info"
+				# "-nostats", 
+				# "-progress", "-"
+			)
+
 			if($UseGPU) {
-				$CPUorGPU = (
+				$Options += (
 					"-hwaccel", "cuda",
 					"-hwaccel_output_format", "cuda",
 					"-i", "$InputFile",
 					"-c:v", "hevc_nvenc"
 				)
 			} else {
-				$CPUorGPU = (
+				$Options += (
 					"-i", "$InputFile",
 					"-c:v", "libx265"
 				)
 			}
 
 			if($Audio) {
-				$Options = $CPUorGPU + (
+				$Options += (
 					"-c:a", "aac",
-					"-b:a", "320k",
-					"-preset", $Preset.ToLower(),
-					$OutputFile
-				)
-			} else {
-				$Options = $CPUorGPU + (
-					"-preset", $Preset.ToLower(),
-					$OutputFile
+					"-b:a", "320k"
 				)
 			}
+
+			$Options += (
+					"-map", "0:v",
+					"-map", "0:a",
+					"-map", "0:s",
+					"$OutputFile"
+			);
+
 			ffmpeg $Options
-			
+
+			$i++;
 		}
 	}
 }

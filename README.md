@@ -42,3 +42,7 @@ The module will make a folder called "Converted" in the specified path and place
 Converted a .mkv file that was 1.09GB to just 439MB:
 
 ![exampleConversion](https://github.com/stlenx/Images/blob/main/ScriptDoesThePog_LI.jpg)
+
+## Credits
+
+ - Thanks to https://jell.yfish.us/ for the testing files.z

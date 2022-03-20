@@ -151,13 +151,18 @@ function ConvertTo-HEVC {
 
                     if($ProgressTime -gt $Duration){
                         continue
-                    }
+					}
+					
+					$TimeLeft = ($Duration - $ProgressTime)
+					$TimeLeft = [timespan]::FromSeconds($TimeLeft.TotalSeconds / $Speed.Trim().Replace("x",""))
 
-					$PercentProcessed = [math]::Round((($ProgressTime.Ticks * 100) / $Duration.Ticks),2)
+					$FormattedEstimate = ($TimeLeft.ToString("hh\:mm\:ss\.ff"))
+
+					$PercentProcessed = ([math]::Round((($ProgressTime.Ticks * 100) / $Duration.Ticks),2)).ToString("00.00")
 					
 					$FFMPegProgressSplat = @{
 						Activity 		= "Processing at $FPS FPS ($Speed)"
-						Status 			= "$PercentProcessed% Complete"
+						Status 			= "$PercentProcessed% Complete - Estimated: $FormattedEstimate until completion."
 						PercentComplete = $PercentProcessed
 						Parentid 		= 1
 					}

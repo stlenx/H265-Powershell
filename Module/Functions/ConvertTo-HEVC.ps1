@@ -4,7 +4,8 @@ function ConvertTo-HEVC {
 		[alias('d')]
 		$Dir,
 		[switch]$UseGPU,
-		[switch]$Audio
+		[switch]$Audio,
+		[switch]$Recurse
 	)
 
 	Begin {
@@ -50,11 +51,6 @@ function ConvertTo-HEVC {
 
 			$Name = $File.name
 
-			if(!($SupportedFormats -Contains $File.Extension)){
-				Write-Host "AAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-				continue
-			}
-
 			$InputFile = "$Dir\$Name"
 
 			if(!($formats -Contains $File.Extension)){
@@ -63,6 +59,17 @@ function ConvertTo-HEVC {
 			}
 
 			$OutputFile = "$Dir\Converted\$Name"
+
+			$FFProbeOpt = (
+				"-hide_banner", "-v",
+				"error", "-show_streams",
+				"-select_streams", "s",
+				"$InputFile"
+			)
+
+			if(ffprobe $FFProbeOpt){
+				$Subtitles = $True
+			}
 
 			$ProgressFile = (New-TemporaryFile).FullName
             [Void]$FilesToDelete.Add($ProgressFile)
@@ -99,13 +106,23 @@ function ConvertTo-HEVC {
 				)
 			}
 
-			$Options += (
+			if($Subtitles){
+				$Options += (
+					"-c:s", "copy",
 					"-map", "0:v",
 					"-map", "0:a?",
 					"-map", "0:s?",
 					"$OutputFile",
 					"-progress", "$ProgressFile"
-			)
+				)
+			} else {
+				$Options += (
+					"-map", "0:v",
+					"-map", "0:a?",
+					"$OutputFile",
+					"-progress", "$ProgressFile"
+				)
+			}
 
 			$Options -join "|" >> $FuckyWuckyTempFileToPassToStartProcess
 

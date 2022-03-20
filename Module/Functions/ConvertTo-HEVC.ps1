@@ -88,6 +88,7 @@ function ConvertTo-HEVC {
 				$Options += (
 					"-hwaccel", "cuda",
 					"-hwaccel_output_format", "cuda",
+					"-extra_hw_frames", "10",
 					"-i", "$InputFile",
 					"-c:v", "hevc_nvenc"
 				)

@@ -4,7 +4,8 @@ function ConvertTo-HEVC {
 		[alias('d')]
 		$Dir,
 		[switch]$UseGPU,
-		[switch]$Audio
+		[switch]$Audio,
+		[switch]$Recurse
 	)
 
 	Begin {
@@ -50,11 +51,6 @@ function ConvertTo-HEVC {
 
 			$Name = $File.name
 
-			if(!($SupportedFormats -Contains $File.Extension)){
-				Write-Host "AAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-				continue
-			}
-
 			$InputFile = "$Dir\$Name"
 
 			if(!($formats -Contains $File.Extension)){
@@ -63,6 +59,17 @@ function ConvertTo-HEVC {
 			}
 
 			$OutputFile = "$Dir\Converted\$Name"
+
+			$FFProbeOpt = (
+				"-hide_banner", "-v",
+				"error", "-show_streams",
+				"-select_streams", "s",
+				"$InputFile"
+			)
+
+			if(ffprobe $FFProbeOpt){
+				$Subtitles = $True
+			}
 
 			$ProgressFile = (New-TemporaryFile).FullName
             [Void]$FilesToDelete.Add($ProgressFile)
@@ -99,13 +106,23 @@ function ConvertTo-HEVC {
 				)
 			}
 
-			$Options += (
+			if($Subtitles){
+				$Options += (
+					"-c:s", "copy",
 					"-map", "0:v",
 					"-map", "0:a?",
 					"-map", "0:s?",
 					"$OutputFile",
 					"-progress", "$ProgressFile"
-			)
+				)
+			} else {
+				$Options += (
+					"-map", "0:v",
+					"-map", "0:a?",
+					"$OutputFile",
+					"-progress", "$ProgressFile"
+				)
+			}
 
 			$Options -join "|" >> $FuckyWuckyTempFileToPassToStartProcess
 
@@ -134,13 +151,18 @@ function ConvertTo-HEVC {
 
                     if($ProgressTime -gt $Duration){
                         continue
-                    }
+					}
+					
+					$TimeLeft = ($Duration - $ProgressTime)
+					$TimeLeft = [timespan]::FromSeconds($TimeLeft.TotalSeconds / $Speed.Trim().Replace("x",""))
 
-					$PercentProcessed = [math]::Round((($ProgressTime.Ticks * 100) / $Duration.Ticks),2)
+					$FormattedEstimate = ($TimeLeft.ToString("hh\:mm\:ss\.ff"))
+
+					$PercentProcessed = ([math]::Round((($ProgressTime.Ticks * 100) / $Duration.Ticks),2)).ToString("00.00")
 					
 					$FFMPegProgressSplat = @{
 						Activity 		= "Processing at $FPS FPS ($Speed)"
-						Status 			= "$PercentProcessed% Complete"
+						Status 			= "$PercentProcessed% Complete - Estimated: $FormattedEstimate until completion."
 						PercentComplete = $PercentProcessed
 						Parentid 		= 1
 					}

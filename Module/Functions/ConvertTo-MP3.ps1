@@ -47,14 +47,7 @@ function ConvertTo-MP3(){
         $SampleRate = 48000
     )
 
-
-
     begin{
-        function ConvertTo-Timespan($Time){
-            $textReformat = $Time -replace ",","."
-            return ([TimeSpan]::Parse($textReformat))
-        }
-
         $FilesToDelete = [System.Collections.ArrayList]@()
 
         $FuckyWuckyTempFileToPassToStartProcess = [IO.Path]::GetTempPath() + "FFmpegConvert.tmp"
@@ -62,10 +55,12 @@ function ConvertTo-MP3(){
 
         $AcceptableFormats = $Global:Configuration.SupportedAudioFormats
 
-        $ChildItemSplat = @{}
+        $ChildItemSplat = @{
+            LiteralPath = $True
+        }
 
         if($Recurse){
-            $ChildItemSplat["-Recurse"] = $True
+            $ChildItemSplat["Recurse"] = $True
         }
 
         $ChildItemSplat["Path"] = $Dir
@@ -103,9 +98,19 @@ function ConvertTo-MP3(){
                 continue
             }
 
-            $Options = "$FileName|$BitRate|$SampleRate|$Output|$ProgressFile"
+            $Options = (
+                "-hide_banner",
+                "-loglever", "error",
+                "-i", "$FileName",
+                "-ab", "$BitRate",
+                "-ar", "$SampleRate",
+                "-map_metadata", 0,
+                "-id3v3_version", 3,
+                "$Output",
+                "-progress", "$ProgressFile"
+            )
 
-            $Options >> $FuckyWuckyTempFileToPassToStartProcess
+            $Options -join "|" >> $FuckyWuckyTempFileToPassToStartProcess
 
             $ffmpeg = (start-process -NoNewWindow powershell {
 
@@ -113,13 +118,7 @@ function ConvertTo-MP3(){
 
                 $Options = (Get-Content $FuckyWuckyTempFileToPassToStartProcess -Tail 1).Split('|')
 
-                $FileName = $Options[0]
-                $BitRate = $Options[1]
-                $SampleRate = $Options[2]
-                $Output = $Options[3]
-                $ProgressFile = $Options[4]
-
-                ffmpeg -hide_banner -loglevel error -i """$FileName""" -ab $BitRate -ar $SampleRate -map_metadata 0 -id3v2_version 3 """$Output""" -progress """$ProgressFile"""
+                ffmpeg $Options
             
             } -PassThru)
             

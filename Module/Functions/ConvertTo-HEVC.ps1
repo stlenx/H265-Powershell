@@ -156,7 +156,7 @@ function ConvertTo-HEVC {
 					$TimeLeft = ($Duration - $ProgressTime)
 					$TimeLeft = [timespan]::FromSeconds($TimeLeft.TotalSeconds / $Speed.Trim().Replace("x",""))
 
-					$FormattedEstimate = ($TimeLeft.ToString("hh\:mm\:ss\.ff"))
+					$FormattedEstimate = ($TimeLeft.ToString("hh\:mm\:ss"))
 
 					$PercentProcessed = ([math]::Round((($ProgressTime.Ticks * 100) / $Duration.Ticks),2)).ToString("00.00")
 					
